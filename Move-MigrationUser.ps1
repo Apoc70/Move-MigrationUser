@@ -7,7 +7,7 @@
   THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE
   RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
 
-  Version 1.0, 2022-08-23
+  Version 1.0, 2022-08-29
 
   Please use GitHub repository for ideas, comments, and suggestions.
 
@@ -29,19 +29,50 @@
 
   .PARAMETER Users
 
+  List of migration user email addresses that should move to a new migration batch
+
+  .PARAMETER UsersCsvFile
+
+  Path to a CSV file containing a migration users, one user migration email address per line
+
+  .PARAMETER BatchName
+
+  The name of the new migration batch. The BatchName is the first part of the final full Name, e.g. BATCHNAME_2022-08-17_SOURCEBATCHNAME
+
+  .PARAMETER Autostart
+
+  Switch indicating that the new migration batch should start automatically
+
+  .PARAMETER AutoComplete
+
+  Switch indicating that the new migration should complete migration automatically
+  NOT implemented yet
+
+  .PARAMETER CompleteDateTime
+
+  [DateTime] defining the completion date and time for the new batch
+
+  .PARAMETER NotificationEmails
+
+  Email addresses for batch notification emails
+
+  .PARAMETER DateTimePattern
+
+  The string pattern used for date information used in the batch name
+
   .EXAMPLE
 #>
 
 [CmdletBinding()]
 param(
-    $Users = @(  'JohnDoe@varunagroup.de' ),
+    $Users = @( 'JohnDoe@varunagroup.de' ),
+    $UsersCsvFile = '',
     [string]$BatchName = 'BATCH',
     [switch]$Autostart,
     [switch]$AutoComplete,
     [datetime]$CompleteDateTime,
     $NotificationEmails = 'VarunaAdmin@varunagroup.de',
     [string]$DateTimePattern = 'yyyy-MM-dd'
-
 )
 
 if (($Users | Measure-Object).Count -ne 0) {
@@ -57,11 +88,13 @@ if (($Users | Measure-Object).Count -ne 0) {
     # ToDo: Pre-Check users for existence as migration user and a non-completed migration status
     $MigrationsUsers = $Users | ForEach-Object { Get-MigrationUser -Identity $_ | Select-Object Identity, BatchId } | Group-Object BatchId
 
-
+    # Parse migration users
     $MigrationsUsers | ForEach-Object {
 
         Write-Output ('{1} - {0}'-f $_.Name, $_.Group.Identity)
 
+        # assemble new batch name
+        # adjust to your personal needs
         $NewBatchName = ('{0}_{1}' -f $BatchNamePrefix, $_.Name)
 
         # Create new migration batch
@@ -72,6 +105,7 @@ if (($Users | Measure-Object).Count -ne 0) {
             $Batch = New-MigrationBatch -Name $NewBatchName -UserIds $_.Group.Identity -DisableOnCopy -NotificationEmails $NotificationEmails
         }
 
+        # Output detailed batch information
         $Batch | Format-List
 
         # Set auto completion date and time if not null
