@@ -1,6 +1,6 @@
 <#
   .SYNOPSIS
-  Creates a new migration batch and moves migration users one batch to the new batch.
+  This script creates a new migration batch and moves migration users from one batch to the new batch.
 
   Thomas Stensitzki
 
@@ -18,6 +18,15 @@
   http://scripts.granikos.eu
 
   .DESCRIPTION
+
+  This script moves Exchange Online migration users to a new migration batch. The script creates
+  the new batch automatically. The name of the new batch is based on the following:
+  * Custom prefix, provided by the BatchName parameter
+  * Batch completion date
+  * Source batch name
+
+  The new batch name helps you to easily identify the planned completion date and source of the
+  migration users. This is helpful during an agile mailbox migration process.
 
   .NOTES
   Requirements
@@ -58,18 +67,24 @@
 
   .PARAMETER DateTimePattern
 
-  The string pattern used for date information used in the batch name
+  The string pattern used for date information in the batch name
 
   .EXAMPLE
+
+  ./Move-MigrationUsers -Users JohnDoe@varunagroup.de,JaneDoe@varunagroup.de -CompleteDateTime '2022/08/31 18:00'
+
+  Move two migration users from the their current migration  batch to a new migration batch
 #>
 
 [CmdletBinding()]
 param(
+
     $Users = @( 'JohnDoe@varunagroup.de' ),
-    $UsersCsvFile = '',
+    # $UsersCsvFile = '',
     [string]$BatchName = 'BATCH',
     [switch]$Autostart,
-    [switch]$AutoComplete,
+    # [switch]$AutoComplete,
+    [Parameter(Mandatory=$true)]
     [datetime]$CompleteDateTime,
     $NotificationEmails = 'VarunaAdmin@varunagroup.de',
     [string]$DateTimePattern = 'yyyy-MM-dd'
