@@ -1,6 +1,10 @@
-# MOve-MIgrationUser.ps1
+# Move-MigrationUser.ps1
 
  This script creates a new migration batch and moves migration users from one batch to the new batch.
+
+## NOTE
+
+This repository is archiev. You can find the most recent and maintained release [here](https://github.com/Apoc70/PowerShell-Scripts).
 
 ## Description
 
